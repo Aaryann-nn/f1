@@ -75,7 +75,21 @@ function records(payload){
 function gapValue(v){return typeof v==='object'&&v!==null?val(v,'Value','value','Text','text')??'—':v??'—';}
 function timeValue(v){return typeof v==='object'&&v!==null?val(v,'Value','value','Display','display')??'—':v??'—';}
 function duration(v){return timeValue(v);}
-async function get(path){const r=await fetch(API+path,{cache:'no-store'});if(!r.ok)throw new Error(path+' returned HTTP '+r.status);return r.json();}
+
+async function get(path) {
+  try {
+    const response = await fetch(API + path, { cache: 'no-store' });
+    if (!response.ok) {
+      console.warn(path + ' returned HTTP ' + response.status);
+      return {};
+    }
+    return await response.json();
+  } catch (error) {
+    console.warn('Endpoint unavailable:', path, error);
+    return {};
+  }
+}
+
 function setConnection(ok,label){$('connection-label').textContent=label;$('connection-dot').className='dot '+(ok?'good':'bad');}
 function firstPayload(...args){return args.find(x=>x&&typeof x==='object')||{};}
 async function refresh(){
