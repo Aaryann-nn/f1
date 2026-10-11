@@ -16,7 +16,7 @@ main{max-width:1400px;margin:0 auto;padding:24px 22px 44px}.hero{display:flex;ju
 .grid{display:grid;grid-template-columns:minmax(0,1.65fr) minmax(300px,1fr);gap:16px}.panel{background:var(--panel);border:1px solid var(--line);border-radius:16px;overflow:hidden}.panel-head{padding:15px 17px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--line);gap:12px}.panel-head h2{font-size:13px;margin:0;text-transform:uppercase;letter-spacing:.09em}.panel-body{padding:16px}.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}.stat{padding:15px;background:var(--panel);border:1px solid var(--line);border-radius:14px;min-width:0}.stat label{display:block;color:var(--muted);font-size:10px;letter-spacing:.1em;text-transform:uppercase}.stat strong{display:block;font-size:20px;margin-top:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.stat small{display:block;color:var(--muted);margin-top:3px;font-size:11px}
 table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}th{text-align:left;color:var(--muted);font-size:10px;letter-spacing:.08em;text-transform:uppercase;font-weight:600;padding:10px 12px;border-bottom:1px solid var(--line)}td{padding:11px 12px;border-bottom:1px solid #292930}tr:last-child td{border-bottom:0}.pos{font-weight:800;color:#fff;width:38px}.driver-cell{display:flex;align-items:center;gap:10px;min-width:130px}.teambar{width:3px;height:27px;border-radius:4px;background:var(--red);flex:none}.driver-name{font-weight:800}.team{font-size:10px;color:var(--muted);margin-top:2px}.gapval{color:#ddd}.tyre{display:inline-flex;align-items:center;gap:6px;font-size:11px}.tyre:before{content:"";width:8px;height:8px;border:2px solid #ddd;border-radius:50%;display:inline-block}.tyre.SOFT:before{border-color:#ef4b4b}.tyre.MEDIUM:before{border-color:#f4cf48}.tyre.HARD:before{border-color:#eee}.tyre.INTERMEDIATE:before{border-color:#4bc982}.tyre.WET:before{border-color:#4d8cff}
 .event-list{display:flex;flex-direction:column;gap:10px}.event{display:grid;grid-template-columns:10px 1fr;gap:10px;padding:11px;background:var(--panel2);border-radius:10px}.event-mark{width:8px;height:8px;background:var(--red);border-radius:50%;margin-top:5px}.event[data-kind="race_control"] .event-mark{background:var(--yellow)}.event[data-kind="pit"] .event-mark{background:#8a83ff}.event[data-kind="position"] .event-mark{background:var(--green)}.event-title{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:800}.event-message{margin-top:3px}.event-time{color:var(--muted);font-size:10px;margin-top:4px}
-.side-stack{display:flex;flex-direction:column;gap:16px}.weather-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.weather-item{background:var(--panel2);padding:12px;border-radius:10px}.weather-item span{display:block;color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:.06em}.weather-item strong{display:block;font-size:18px;margin-top:5px}.empty{color:var(--muted);text-align:center;padding:28px 10px}.foot{margin-top:18px;display:flex;justify-content:space-between;gap:14px;color:var(--muted);font-size:11px;flex-wrap:wrap}.error{color:#ff9c96}.notice{margin-bottom:16px;background:#282219;border:1px solid #55452b;color:#f4d79d;border-radius:10px;padding:10px 13px;font-size:12px}
+.side-stack{display:flex;flex-direction:column;gap:16px}.weather-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.weather-item{background:var(--panel2);padding:12px;border-radius:10px}.weather-item span{display:block;color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:.06em}.weather-item strong{display:block;font-size:18px;margin-top:5px}.empty{color:var(--muted);text-align:center;padding:28px 10px}.foot{margin-top:18px;display:flex;justify-content:space-between;gap:14px;color:var(--muted);font-size:11px;flex-wrap:wrap}.sector{font-variant-numeric:tabular-nums;font-size:12px}.sector.purple{color:#c8a2ff;font-weight:800}.sector.green{color:#5dd39e;font-weight:800}.sector.yellow{color:#f3c969}.status-tag{display:inline-block;border-radius:5px;padding:3px 6px;background:#303039;font-size:10px;font-weight:800;white-space:nowrap}.status-tag.pit{background:#3b2b55;color:#d6c3ff}.status-tag.out{background:#253b32;color:#9ce7c3}.map-shell{min-height:230px;display:grid;place-items:center;background:radial-gradient(ellipse at center,#202027 0%,#17171d 70%);border-radius:10px;padding:18px;text-align:center}.map-note{max-width:440px;color:var(--muted);font-size:12px}.standings-note{color:var(--muted);font-size:12px;line-height:1.6}.error{color:#ff9c96}.notice{margin-bottom:16px;background:#282219;border:1px solid #55452b;color:#f4d79d;border-radius:10px;padding:10px 13px;font-size:12px}
 @media(max-width:950px){.grid{grid-template-columns:1fr}.side-stack{display:grid;grid-template-columns:1fr 1fr}.stats{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:600px){.top,main{padding-left:13px;padding-right:13px}.hero{align-items:start;flex-direction:column}.refresh{text-align:left}.side-stack{display:flex}.stats{gap:8px}.stat{padding:12px}.stat strong{font-size:18px}.panel-head{padding:13px}.panel-body{padding:10px}th,td{padding:9px 7px}.team{display:none}.driver-cell{min-width:105px;gap:7px}.hide-mobile{display:none}.brand{font-size:16px}}
 </style>
@@ -42,7 +42,7 @@ table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}th{t
     <div class="panel">
       <div class="panel-head"><h2>Timing Tower</h2><span class="sub" id="driver-count">0 Drivers</span></div>
       <div style="overflow-x:auto">
-        <table><thead><tr><th>Pos</th><th>Driver</th><th>Gap</th><th class="hide-mobile">Tyre</th><th class="hide-mobile">Stint</th></tr></thead><tbody id="timing-body"><tr><td colspan="5" class="empty">Waiting for timing data…</td></tr></tbody></table>
+        <table><thead><tr><th>Pos</th><th>Driver</th><th>Gap</th><th class="hide-mobile">Interval</th><th class="hide-mobile">S1</th><th class="hide-mobile">S2</th><th class="hide-mobile">S3</th><th class="hide-mobile">Tyre</th><th class="hide-mobile">Stops</th><th>Status</th></tr></thead><tbody id="timing-body"><tr><td colspan="10" class="empty">Waiting for timing data…</td></tr></tbody></table>
       </div>
     </div>
     <div class="side-stack">
@@ -55,7 +55,11 @@ table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}th{t
       </div></div></div>
     </div>
   </section>
-  <div class="foot"><span>Fan-Made F1 Dashboard · Unofficial Community Timing Feed</span><span>Not affiliated with Formula 1</span></div>
+  <section class="grid" style="margin-top:16px">
+    <div class="panel"><div class="panel-head"><h2>Championship Standings</h2><span class="sub">Season Points</span></div><div class="panel-body" id="championship-panel"><p class="standings-note">Championship points are not supplied by the currently connected API. Its <code>/api/standings</code> endpoint is live session classification, not season championship points. No points are fabricated.</p></div></div>
+    <div class="panel"><div class="panel-head"><h2>Live Circuit Map</h2><span class="sub" id="map-status">Position Feed</span></div><div class="panel-body"><div class="map-shell" id="circuit-map"><div class="map-note"><strong>Car Positions Not Available</strong><p>The current API exposes timing positions and gaps, but no car latitude/longitude or track-position coordinates. The map will activate when a genuine position feed is added; no markers are guessed.</p></div></div></div></div>
+  </section>
+  <div class="foot"><span>Fan-Made F1 Dashboard · Unofficial Community Timing Feed</span> · Unofficial Community Timing Feed</span><span>Not affiliated with Formula 1</span></div>
 </main>
 <script>
 const API = "https://f1-livetiming-api-zcoh.onrender.com/api";
@@ -67,6 +71,10 @@ function val(obj,...keys){for(const k of keys){if(obj?.[k]!==undefined && obj?.[
 function records(payload){
   if(Array.isArray(payload)) return payload;
   if(Array.isArray(payload?.drivers)) return payload.drivers;
+  if(Array.isArray(payload?.Messages)) return payload.Messages;
+  if(Array.isArray(payload?.messages)) return payload.messages;
+  if(Array.isArray(payload?.RaceControlMessages)) return payload.RaceControlMessages;
+  if(Array.isArray(payload?.raceControlMessages)) return payload.raceControlMessages;
   if(Array.isArray(payload?.data)) return payload.data;
   const lines=payload?.Lines||payload?.lines;
   if(lines && typeof lines==='object') return Object.entries(lines).map(([id,row])=>({RacingNumber:id,...row}));
@@ -75,21 +83,7 @@ function records(payload){
 function gapValue(v){return typeof v==='object'&&v!==null?val(v,'Value','value','Text','text')??'—':v??'—';}
 function timeValue(v){return typeof v==='object'&&v!==null?val(v,'Value','value','Display','display')??'—':v??'—';}
 function duration(v){return timeValue(v);}
-
-async function get(path) {
-  try {
-    const response = await fetch(API + path, { cache: 'no-store' });
-    if (!response.ok) {
-      console.warn(path + ' returned HTTP ' + response.status);
-      return {};
-    }
-    return await response.json();
-  } catch (error) {
-    console.warn('Endpoint unavailable:', path, error);
-    return {};
-  }
-}
-
+async function get(path){try{const r=await fetch(API+path,{cache:'no-store'});if(!r.ok){console.warn(path+' returned HTTP '+r.status);return null;}return await r.json();}catch(e){console.warn('Endpoint unavailable:',path,e);return null;}}
 function setConnection(ok,label){$('connection-label').textContent=label;$('connection-dot').className='dot '+(ok?'good':'bad');}
 function firstPayload(...args){return args.find(x=>x&&typeof x==='object')||{};}
 async function refresh(){
@@ -97,6 +91,7 @@ async function refresh(){
   const [status,leaderboard,session,weather,control,lapCount,tyres,driversData] = await Promise.all([
    get('/status'),get('/leaderboard'),get('/session'),get('/weather'),get('/race-control'),get('/lap-count'),get('/tyres'),get('/drivers')
   ]);
+  if(!status && !leaderboard) throw new Error('Could not reach the status or leaderboard endpoints.');
   const connected=val(status,'isConnected')===true || String(val(status,'status')||'').toUpperCase()==='CONNECTED';
   setConnection(connected,connected?'Connected':'Feed Waiting');
   $('updated').textContent=timeOf(val(status,'lastMessageAt','timestamp')||new Date().toISOString());
@@ -116,7 +111,7 @@ async function refresh(){
   const currentLap=val(laps,'CurrentLap','currentLap','Lap','lap');
   const totalLaps=val(laps,'TotalLaps','totalLaps');
   $('lap-count').textContent=currentLap!=null?(totalLaps!=null?currentLap+' / '+totalLaps:currentLap):'—';
-  const drivers=records(leaderboard);
+  const drivers=records(leaderboard || {});
   const tyreById={};
   const tyreLines=tyres?.Lines||tyres?.lines;
   if(tyreLines&&typeof tyreLines==='object') Object.entries(tyreLines).forEach(([id,r])=>tyreById[id]=r);
@@ -147,15 +142,25 @@ async function refresh(){
    const colour=String(val(r,'TeamColour','teamColour','team_color')||'e10600').replace('#','').replace(/[^0-9a-f]/gi,'');
    const pos=val(r,'Position','position')??'—';
    const gap=Number(pos)===1?'LEADER':gapValue(val(r,'GapToLeader','gapToLeader'));
+   const interval=Number(pos)===1?'—':gapValue(val(r,'IntervalToPositionAhead','intervalToPositionAhead'));
+   const sectors=val(r,'Sectors','sectors')||{};
+   const sectorAt=(n)=>{const q=Array.isArray(sectors)?sectors[n]:sectors[String(n)]??sectors[String(n+1)];return q?timeValue(val(q,'Value','value','Time','time')):'—';};
    const name=val(r,'FullName','BroadcastName','Tla','Name','name')||id||'Unknown Driver';
    const team=val(r,'TeamName','teamName','Team','team')||'';
-   const stintNo=val(r,'NumberOfPitStops','numberOfPitStops')??(Array.isArray(stints)?stints.length:'—');
-   return `<tr><td class="pos">${safeText(pos)}</td><td><div class="driver-cell"><span class="teambar" style="background:#${safeText(colour||'e10600')}"></span><div><div class="driver-name">${safeText(name)}</div><div class="team">${safeText(team)}</div></div></div></td><td class="gapval">${safeText(gap)}</td><td class="hide-mobile"><span class="tyre ${safeText(compound)}">${safeText(compound||'—')}</span></td><td class="hide-mobile">${safeText(stintNo)}</td></tr>`;
-  }).join(''):`<tr><td colspan="5" class="empty">No live positions are available. The feed may be idle outside an active session.</td></tr>`;
-  const controlEvents=records(control);
+   const stintNo=val(r,'NumberOfPitStops','numberOfPitStops')??(Array.isArray(stints)?Math.max(0,stints.length-1):'—');
+   const isPit=val(r,'InPit','inPit')===true, isOut=val(r,'PitOut','pitOut')===true, retired=val(r,'Retired','retired')===true, stopped=val(r,'Stopped','stopped')===true;
+   const statusLabel=retired?'RETIRED':isPit?'IN PIT':isOut?'PIT EXIT':stopped?'STOPPED':'RUNNING';
+   const statusClass=isPit?'pit':isOut?'out':'';
+   const best=val(r,'BestLapTime','bestLapTime');
+   const bestObj=typeof best==='object'&&best!==null?best:{};
+   const bestFlag=val(bestObj,'OverallFastest','overallFastest')===true;
+   return `<tr><td class="pos">${safeText(pos)}</td><td><div class="driver-cell"><span class="teambar" style="background:#${safeText(colour||'e10600')}"></span><div><div class="driver-name">${safeText(name)} ${bestFlag?'<span class="sector purple">●</span>':''}</div><div class="team">${safeText(team)}</div></div></div></td><td class="gapval">${safeText(gap)}</td><td class="hide-mobile">${safeText(interval)}</td><td class="hide-mobile sector">${safeText(sectorAt(0))}</td><td class="hide-mobile sector">${safeText(sectorAt(1))}</td><td class="hide-mobile sector">${safeText(sectorAt(2))}</td><td class="hide-mobile"><span class="tyre ${safeText(compound)}">${safeText(compound||'—')}</span></td><td class="hide-mobile">${safeText(stintNo)}</td><td><span class="status-tag ${statusClass}">${statusLabel}</span></td></tr>`;
+  }).join(''):`<tr><td colspan="10" class="empty">No live positions are available. The feed may be idle outside an active session.</td></tr>`;
+  const controlEvents=records(control || {});
   const events=controlEvents.slice(-18).reverse().map(e=>({kind:'race_control',title:val(e,'Category','category','Flag','flag','Type','type')||'Race Control',message:val(e,'Message','message','Description','description','Text','text')||JSON.stringify(e),date:val(e,'Utc','utc','Timestamp','timestamp','Date','date')}));
-  $('event-list').innerHTML=events.length?events.map(e=>`<div class="event" data-kind="${safeText(e.kind)}"><span class="event-mark"></span><div><div class="event-title">${safeText(e.title)}</div><div class="event-message">${safeText(e.message)}</div><div class="event-time">${safeText(e.date?timeOf(e.date):'')}</div></div></div>`).join(''):`<div class="empty">No recent race-control messages received.</div>`;
+  $('event-list').innerHTML=events.length?events.map(e=>`<div class="event" data-kind="${safeText(e.kind)}"><span class="event-mark"></span><div><div class="event-title">${safeText(e.title)}</div><div class="event-message">${safeText(e.message)}</div><div class="event-time">${safeText(e.date?timeOf(e.date):'')}</div></div></div>`).join(''):`<div class="empty">${control?'No recent race-control messages received.':'Race-control endpoint is currently unavailable.'}</div>`;
   if(!connected){$('error-box').hidden=false;$('error-box').textContent='The API is online, but the official timing stream may be idle outside a supported F1 session.';}
+  const champ=$('championship-panel'); if(champ && !champ.dataset.ready){champ.dataset.ready='1';} 
  }catch(e){
   setConnection(false,'Feed Unavailable');$('status-text').textContent='Trying again automatically';$('error-box').hidden=false;
   $('error-box').textContent='The live timing API may be waking up or the F1 stream may be unavailable. '+e.message+'. Retrying shortly.';
