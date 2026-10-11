@@ -28,7 +28,7 @@ table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}th{t
 </div></header>
 <main>
   <section class="hero">
-    <div><div class="sub" id="meeting">Race Weekend</div><h1 id="session-title">Loading Race Data</h1><p id="circuit">Connecting to community F1 live timing…</p></div>
+    <div><div class="sub" id="meeting">Race Weekend</div><h1 id="session-title">Loading Race Data</h1><p id="circuit">Connecting to official F1 timing stream…</p></div>
     <div class="refresh"><div>LAST UPDATED</div><strong id="updated">—</strong><div id="status-text">Starting data service</div></div>
   </section>
   <div id="error-box" class="notice" hidden></div>
@@ -58,74 +58,94 @@ table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}th{t
   <div class="foot"><span>Fan-Made F1 Dashboard · Unofficial Community Timing Feed</span><span>Not affiliated with Formula 1</span></div>
 </main>
 <script>
-const API = "https://f1-live-api.onrender.com";
+const API = "https://f1-livetiming-api-zcoh.onrender.com/api";
 const $ = id => document.getElementById(id);
 const fmt = (v, digits=1) => v === null || v === undefined || v === "" ? "—" : Number.isFinite(Number(v)) ? Number(v).toFixed(digits) : String(v);
-function timeOf(value){ if(!value) return "—"; const d=new Date(value); return Number.isNaN(d.getTime()) ? "—" : d.toLocaleTimeString([], {hour:"2-digit",minute:"2-digit",second:"2-digit"}); }
+function timeOf(value){ if(!value) return "—"; const d=new Date(value); return Number.isNaN(d.getTime()) ? String(value) : d.toLocaleTimeString([], {hour:"2-digit",minute:"2-digit",second:"2-digit"}); }
 function safeText(s){return String(s??"—").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
-function arr(data, keys=[]){ if(Array.isArray(data)) return data; for(const k of keys) if(Array.isArray(data?.[k])) return data[k]; return []; }
 function val(obj,...keys){for(const k of keys){if(obj?.[k]!==undefined && obj?.[k]!==null && obj?.[k]!=="") return obj[k];}return null;}
-function duration(v){ if(v===null||v===undefined||v==="") return "—"; if(typeof v==="string") return v; return Number(v).toFixed(3)+"s"; }
-async function get(path){const r=await fetch(API+path,{cache:"no-store"});if(!r.ok)throw new Error(path+" returned HTTP "+r.status);return r.json();}
-function setConnection(ok,label){$("connection-label").textContent=label;$("connection-dot").className="dot "+(ok?"good":"bad");}
-function timeSeconds(v){if(typeof v==="number")return v; if(typeof v!=="string")return Infinity; const m=v.match(/(?:(\d+):)?(\d{1,2})\.(\d+)/); if(!m)return Infinity; return (Number(m[1]||0)*60)+Number(m[2])+Number("0."+m[3]);}
+function records(payload){
+  if(Array.isArray(payload)) return payload;
+  if(Array.isArray(payload?.drivers)) return payload.drivers;
+  if(Array.isArray(payload?.data)) return payload.data;
+  const lines=payload?.Lines||payload?.lines;
+  if(lines && typeof lines==='object') return Object.entries(lines).map(([id,row])=>({RacingNumber:id,...row}));
+  return [];
+}
+function gapValue(v){return typeof v==='object'&&v!==null?val(v,'Value','value','Text','text')??'—':v??'—';}
+function timeValue(v){return typeof v==='object'&&v!==null?val(v,'Value','value','Display','display')??'—':v??'—';}
+function duration(v){return timeValue(v);}
+async function get(path){const r=await fetch(API+path,{cache:'no-store'});if(!r.ok)throw new Error(path+' returned HTTP '+r.status);return r.json();}
+function setConnection(ok,label){$('connection-label').textContent=label;$('connection-dot').className='dot '+(ok?'good':'bad');}
+function firstPayload(...args){return args.find(x=>x&&typeof x==='object')||{};}
 async function refresh(){
-  try{
-    // Poll at a moderate interval to respect the community instance's per-IP request limit.
-    const [status,timing,weather,control,pits] = await Promise.all([
-      get("/status"),get("/timing"),get("/weather"),get("/race-control"),get("/pits")
-    ]);
-    const session = status.session_info || status.session || timing.session_info || {};
-    const isConnected = val(status,"connected","is_connected","live") !== false && !status.error;
-    setConnection(Boolean(isConnected),isConnected?"Connected":"Feed Waiting");
-    const stamp=val(timing,"timestamp")||val(status,"timestamp","updated_at")||new Date().toISOString();
-    $("updated").textContent=timeOf(stamp);
-    $("status-text").textContent=val(status,"status","session_status","message")||"Live feed response received";
-    $("error-box").hidden=true;
-    const sessionName=val(session,"session_name","name","session")||val(timing,"session")||"Waiting For Session";
-    const meetingName=val(session,"meeting_name","meeting","grand_prix","event_name")||"F1 RACE WEEKEND";
-    const year=val(session,"year");
-    $("meeting").textContent=[year,meetingName].filter(Boolean).join(" · ");
-    $("session-title").textContent=sessionName;
-    $("circuit").textContent=[val(session,"circuit_short_name","circuit","circuit_name","location"),val(session,"country_name","country")].filter(Boolean).join(" · ")||"Live timing appears during supported sessions.";
-    const laps=val(status,"lap_count","lapCount","current_lap","laps_completed")??val(status.clock||{},"lap");
-    $("lap-count").textContent=laps??"—";
-    const drivers=arr(timing,["drivers","timing","positions"]);
-    const fastest=drivers.find(d=>d.last_lap_overall_best) || drivers.filter(d=>d.best_lap_time).sort((a,b)=>timeSeconds(a.best_lap_time)-timeSeconds(b.best_lap_time))[0];
-    $("fastest-time").textContent=fastest?duration(val(fastest,"best_lap_time","last_lap_time")):"—";
-    $("fastest-driver").textContent=fastest?[val(fastest,"name","driver","acronym"),fastest.last_lap_overall_best?"Fastest Lap":"Session Best"].filter(Boolean).join(" · "):"Awaiting timing";
-    const w=weather.weather||weather.data||weather;
-    const air=val(w,"air_temperature","air_temp","airTemperature"); const track=val(w,"track_temperature","track_temp","trackTemperature");
-    const humidity=val(w,"humidity"); const rain=val(w,"rainfall","rainfall_rate","rain"); const wind=val(w,"wind_speed","windSpeed","wind_speed_mps");
-    $("temperature").textContent=(air!=null?fmt(air,0)+"°":"—")+" / "+(track!=null?fmt(track,0)+"°":"—");
-    $("humidity").textContent=humidity!=null?"Humidity "+fmt(humidity,0)+"%":"Weather unavailable";
-    $("rainfall").textContent=rain!=null?(Number(rain)>0?"Rain Detected":"No Rain Reported"):"—";
-    $("wind").textContent=wind!=null?"Wind "+fmt(wind,1)+" m/s":"Conditions unavailable";
-    $("track-temp").textContent=track!=null?fmt(track,0)+"°C":"—";
-    $("weather-humidity").textContent=humidity!=null?fmt(humidity,0)+"%":"—";
-    $("wind-speed").textContent=wind!=null?fmt(wind,1)+" m/s":"—";
-    $("weather-rain").textContent=rain!=null?(Number(rain)>0?"Rain":"None reported"):"—";
-    $("driver-count").textContent=drivers.length+" Drivers";
-    $("timing-body").innerHTML=drivers.length?drivers.slice().sort((a,b)=>Number(val(a,"position","Position")||999)-Number(val(b,"position","Position")||999)).map(r=>{
-      const colour=String(val(r,"team_colour","team_color","TeamColour")||"e10600").replace("#","").replace(/[^0-9a-f]/gi,"");
-      const position=val(r,"position","Position")??"—";
-      const gapRaw=val(r,"gap_to_leader","GapToLeader","gapToLeader"); const interval=val(r,"interval","IntervalToPositionAhead","gap_to_ahead");
-      const gap=(Number(position)===1?"LEADER":gapRaw!=null?String(gapRaw):interval!=null?String(interval):"—");
-      const compound=String(val(r,"tyre_compound","compound","Compound")||"").toUpperCase();
-      const name=val(r,"name","driver","full_name","acronym","Tla")||"Unknown Driver";
-      const team=val(r,"team","team_name","TeamName")||"";
-      return `<tr><td class="pos">${safeText(position)}</td><td><div class="driver-cell"><span class="teambar" style="background:#${safeText(colour||"e10600")}"></span><div><div class="driver-name">${safeText(name)}</div><div class="team">${safeText(team)}</div></div></div></td><td class="gapval">${safeText(gap)}</td><td class="hide-mobile"><span class="tyre ${safeText(compound)}">${safeText(compound||"—")}</span></td><td class="hide-mobile">${safeText(val(r,"stint_number","stint","Stint")??"—")}</td></tr>`;
-    }).join(""):`<tr><td colspan="5" class="empty">No live positions are available. The feed may be idle outside an active session.</td></tr>`;
-    const controlEvents=arr(control,["messages","race_control","events"]);
-    const pitEvents=arr(pits,["drivers","pits","stops","events"]);
-    const events=[...controlEvents.slice(-14).map(e=>({kind:"race_control",title:val(e,"category","flag","type","message_type")||"Race Control",message:val(e,"message","Message","description","text")||JSON.stringify(e),date:val(e,"timestamp","date","Utc") })),...pitEvents.filter(p=>p.in_pit||p.pit_out||p.pit_stops?.length).slice(0,5).map(p=>({kind:"pit",title:"Pit Stop · "+(val(p,"acronym","name","driver_number")||"Driver"),message:val(p,"total_stops")!=null?String(p.total_stops)+" stop(s) recorded":"Pit activity detected",date:val(p,"timestamp")}))].sort((a,b)=>new Date(b.date||0)-new Date(a.date||0)).slice(0,18);
-    $("event-list").innerHTML=events.length?events.map(e=>`<div class="event" data-kind="${safeText(e.kind)}"><span class="event-mark"></span><div><div class="event-title">${safeText(e.title)}</div><div class="event-message">${safeText(e.message)}</div><div class="event-time">${safeText(timeOf(e.date))}</div></div></div>`).join(""):`<div class="empty">No recent race-control or pit events received.</div>`;
-  }catch(e){
-    setConnection(false,"Feed Unavailable");
-    $("status-text").textContent="Trying again automatically";
-    $("error-box").hidden=false;
-    $("error-box").textContent="The community timing service may be waking up, offline, or outside an active session. "+e.message+". Retrying shortly.";
-  }
+ try{
+  const [status,leaderboard,session,weather,control,lapCount,tyres,driversData] = await Promise.all([
+   get('/status'),get('/leaderboard'),get('/session'),get('/weather'),get('/race-control'),get('/lap-count'),get('/tyres'),get('/drivers')
+  ]);
+  const connected=val(status,'isConnected')===true || String(val(status,'status')||'').toUpperCase()==='CONNECTED';
+  setConnection(connected,connected?'Connected':'Feed Waiting');
+  $('updated').textContent=timeOf(val(status,'lastMessageAt','timestamp')||new Date().toISOString());
+  $('status-text').textContent=connected?'Live timing stream connected':'Waiting for F1 timing stream';
+  $('error-box').hidden=true;
+  const sessionObj=firstPayload(session?.Session,session?.session,session?.data,session);
+  const meetingObj=firstPayload(session?.Meeting,session?.meeting,sessionObj?.Meeting);
+  const sessionName=val(sessionObj,'Name','SessionName','sessionName','name')||val(session,'sessionName')||'Waiting For Session';
+  const meetingName=val(meetingObj,'Name','OfficialName','meetingName','name')||val(sessionObj,'MeetingName','meetingName')||'F1 RACE WEEKEND';
+  const circuit=val(meetingObj,'CircuitName','circuitName')||val(sessionObj,'CircuitName','circuitName','Location')||'';
+  const country=val(meetingObj,'CountryName','countryName')||'';
+  const year=val(meetingObj,'Year','year')||val(sessionObj,'Year','year');
+  $('meeting').textContent=[year,meetingName].filter(Boolean).join(' · ');
+  $('session-title').textContent=sessionName;
+  $('circuit').textContent=[circuit,country].filter(Boolean).join(' · ')||'Live timing appears during supported sessions.';
+  const laps=firstPayload(lapCount?.LapCount,lapCount?.lapCount,lapCount?.data,lapCount);
+  const currentLap=val(laps,'CurrentLap','currentLap','Lap','lap');
+  const totalLaps=val(laps,'TotalLaps','totalLaps');
+  $('lap-count').textContent=currentLap!=null?(totalLaps!=null?currentLap+' / '+totalLaps:currentLap):'—';
+  const drivers=records(leaderboard);
+  const tyreById={};
+  const tyreLines=tyres?.Lines||tyres?.lines;
+  if(tyreLines&&typeof tyreLines==='object') Object.entries(tyreLines).forEach(([id,r])=>tyreById[id]=r);
+  const fastest=drivers.filter(d=>val(d,'BestLapTime','bestLapTime')).sort((a,b)=>{
+    const ta=String(timeValue(val(a,'BestLapTime','bestLapTime'))),tb=String(timeValue(val(b,'BestLapTime','bestLapTime')));
+    const parse=t=>{const m=t.match(/(?:(\d+):)?(\d+\.\d+)/);return m?(Number(m[1]||0)*60+Number(m[2])):Infinity};return parse(ta)-parse(tb);
+  })[0];
+  $('fastest-time').textContent=fastest?duration(val(fastest,'BestLapTime','bestLapTime')):'—';
+  $('fastest-driver').textContent=fastest?(val(fastest,'Tla','BroadcastName','FullName')||'Session Best'):'Awaiting timing';
+  const w=firstPayload(weather?.Weather,weather?.weather,weather?.data,weather);
+  const air=val(w,'AirTemp','airTemp','AirTemperature'),track=val(w,'TrackTemp','trackTemp','TrackTemperature');
+  const humidity=val(w,'Humidity','humidity'),rain=val(w,'Rainfall','rainfall'),wind=val(w,'WindSpeed','windSpeed');
+  $('temperature').textContent=(air!=null?fmt(air,0)+'°C':'—')+' / '+(track!=null?fmt(track,0)+'°C':'—');
+  $('humidity').textContent=humidity!=null?'Humidity '+fmt(humidity,0)+'%':'Weather unavailable';
+  $('rainfall').textContent=rain!=null?(Number(rain)>0?'Rain Detected':'No Rain Reported'):'—';
+  $('wind').textContent=wind!=null?'Wind '+fmt(wind,1)+' m/s':'Conditions unavailable';
+  $('track-temp').textContent=track!=null?fmt(track,0)+'°C':'—';
+  $('weather-humidity').textContent=humidity!=null?fmt(humidity,0)+'%':'—';
+  $('wind-speed').textContent=wind!=null?fmt(wind,1)+' m/s':'—';
+  $('weather-rain').textContent=rain!=null?(Number(rain)>0?'Rain':'None reported'):'—';
+  $('driver-count').textContent=drivers.length+' Drivers';
+  $('timing-body').innerHTML=drivers.length?drivers.sort((a,b)=>Number(val(a,'Position','position')||999)-Number(val(b,'Position','position')||999)).map(r=>{
+   const id=String(val(r,'RacingNumber','racingNumber','DriverNumber')||'');
+   const tyreRow=tyreById[id]||{};
+   const stints=val(r,'Stints','stints')||val(tyreRow,'Stints','stints')||[];
+   const active=Array.isArray(stints)?stints[stints.length-1]||{}:{};
+   const compound=String(val(active,'Compound','compound')||val(r,'Compound','compound')||'').toUpperCase();
+   const colour=String(val(r,'TeamColour','teamColour','team_color')||'e10600').replace('#','').replace(/[^0-9a-f]/gi,'');
+   const pos=val(r,'Position','position')??'—';
+   const gap=Number(pos)===1?'LEADER':gapValue(val(r,'GapToLeader','gapToLeader'));
+   const name=val(r,'FullName','BroadcastName','Tla','Name','name')||id||'Unknown Driver';
+   const team=val(r,'TeamName','teamName','Team','team')||'';
+   const stintNo=val(r,'NumberOfPitStops','numberOfPitStops')??(Array.isArray(stints)?stints.length:'—');
+   return `<tr><td class="pos">${safeText(pos)}</td><td><div class="driver-cell"><span class="teambar" style="background:#${safeText(colour||'e10600')}"></span><div><div class="driver-name">${safeText(name)}</div><div class="team">${safeText(team)}</div></div></div></td><td class="gapval">${safeText(gap)}</td><td class="hide-mobile"><span class="tyre ${safeText(compound)}">${safeText(compound||'—')}</span></td><td class="hide-mobile">${safeText(stintNo)}</td></tr>`;
+  }).join(''):`<tr><td colspan="5" class="empty">No live positions are available. The feed may be idle outside an active session.</td></tr>`;
+  const controlEvents=records(control);
+  const events=controlEvents.slice(-18).reverse().map(e=>({kind:'race_control',title:val(e,'Category','category','Flag','flag','Type','type')||'Race Control',message:val(e,'Message','message','Description','description','Text','text')||JSON.stringify(e),date:val(e,'Utc','utc','Timestamp','timestamp','Date','date')}));
+  $('event-list').innerHTML=events.length?events.map(e=>`<div class="event" data-kind="${safeText(e.kind)}"><span class="event-mark"></span><div><div class="event-title">${safeText(e.title)}</div><div class="event-message">${safeText(e.message)}</div><div class="event-time">${safeText(e.date?timeOf(e.date):'')}</div></div></div>`).join(''):`<div class="empty">No recent race-control messages received.</div>`;
+  if(!connected){$('error-box').hidden=false;$('error-box').textContent='The API is online, but the official timing stream may be idle outside a supported F1 session.';}
+ }catch(e){
+  setConnection(false,'Feed Unavailable');$('status-text').textContent='Trying again automatically';$('error-box').hidden=false;
+  $('error-box').textContent='The live timing API may be waking up or the F1 stream may be unavailable. '+e.message+'. Retrying shortly.';
+ }
 }
 refresh(); setInterval(refresh,15000);
 </script>
