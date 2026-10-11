@@ -38,6 +38,10 @@ table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}th{t
     <div class="stat"><label>Air / Track</label><strong id="temperature">—</strong><small id="humidity">Weather unavailable</small></div>
     <div class="stat"><label>Rainfall</label><strong id="rainfall">—</strong><small id="wind">Conditions unavailable</small></div>
   </section>
+  <section class="grid" style="margin-top:16px">
+    <div class="panel"><div class="panel-head"><h2>Championship Standings</h2><span class="sub">Season Points</span></div><div class="panel-body" id="championship-panel"><p class="standings-note">Championship points are not supplied by the currently connected API. Its <code>/api/standings</code> endpoint is live session classification, not season championship points. No points are fabricated.</p></div></div>
+    <div class="panel"><div class="panel-head"><h2>Live Circuit Map</h2><span class="sub" id="map-status">Position Feed</span></div><div class="panel-body"><div class="map-shell" id="circuit-map"><div class="map-note"><strong>Car Positions Not Available</strong><p>The current API exposes timing positions and gaps, but no car latitude/longitude or track-position coordinates. The map will activate when a genuine position feed is added; no markers are guessed.</p></div></div></div></div>
+  </section>
   <section class="grid">
     <div class="panel">
       <div class="panel-head"><h2>Timing Tower</h2><span class="sub" id="driver-count">0 Drivers</span></div>
@@ -55,11 +59,7 @@ table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}th{t
       </div></div></div>
     </div>
   </section>
-  <section class="grid" style="margin-top:16px">
-    <div class="panel"><div class="panel-head"><h2>Championship Standings</h2><span class="sub">Season Points</span></div><div class="panel-body" id="championship-panel"><p class="standings-note">Championship points are not supplied by the currently connected API. Its <code>/api/standings</code> endpoint is live session classification, not season championship points. No points are fabricated.</p></div></div>
-    <div class="panel"><div class="panel-head"><h2>Live Circuit Map</h2><span class="sub" id="map-status">Position Feed</span></div><div class="panel-body"><div class="map-shell" id="circuit-map"><div class="map-note"><strong>Car Positions Not Available</strong><p>The current API exposes timing positions and gaps, but no car latitude/longitude or track-position coordinates. The map will activate when a genuine position feed is added; no markers are guessed.</p></div></div></div></div>
-  </section>
-  <div class="foot"><span>Fan-Made F1 Dashboard · Unofficial Community Timing Feed</span> · Unofficial Community Timing Feed</span><span>Not affiliated with Formula 1</span></div>
+  <div class="foot"><span>Fan-Made F1 Dashboard · Unofficial Community Timing Feed</span><span>Not affiliated with Formula 1</span></div>
 </main>
 <script>
 const API = "https://f1-livetiming-api-zcoh.onrender.com/api";
@@ -100,6 +100,9 @@ async function refresh(){
   const sessionObj=firstPayload(session?.Session,session?.session,session?.data,session);
   const meetingObj=firstPayload(session?.Meeting,session?.meeting,sessionObj?.Meeting);
   const sessionName=val(sessionObj,'Name','SessionName','sessionName','name')||val(session,'sessionName')||'Waiting For Session';
+  const rawSessionState=String(val(leaderboard,'SessionStatus','sessionStatus')||val(sessionObj,'Status','status','SessionStatus','sessionStatus')||val(session,'Status','status','SessionStatus','sessionStatus')||'').toLowerCase();
+  const sessionFinished=['finalised','finalized','finished','complete','completed'].includes(rawSessionState);
+  if(sessionFinished){$('status-text').textContent='Session finished';$('session-title').textContent=sessionName+' · FINISHED';}
   const meetingName=val(meetingObj,'Name','OfficialName','meetingName','name')||val(sessionObj,'MeetingName','meetingName')||'F1 RACE WEEKEND';
   const circuit=val(meetingObj,'CircuitName','circuitName')||val(sessionObj,'CircuitName','circuitName','Location')||'';
   const country=val(meetingObj,'CountryName','countryName')||'';
@@ -149,7 +152,7 @@ async function refresh(){
    const team=val(r,'TeamName','teamName','Team','team')||'';
    const stintNo=val(r,'NumberOfPitStops','numberOfPitStops')??(Array.isArray(stints)?Math.max(0,stints.length-1):'—');
    const isPit=val(r,'InPit','inPit')===true, isOut=val(r,'PitOut','pitOut')===true, retired=val(r,'Retired','retired')===true, stopped=val(r,'Stopped','stopped')===true;
-   const statusLabel=retired?'RETIRED':isPit?'IN PIT':isOut?'PIT EXIT':stopped?'STOPPED':'RUNNING';
+   const statusLabel=retired?'RETIRED':sessionFinished?'FINISHED':isPit?'IN PIT':isOut?'PIT EXIT':stopped?'STOPPED':'RUNNING';
    const statusClass=isPit?'pit':isOut?'out':'';
    const best=val(r,'BestLapTime','bestLapTime');
    const bestObj=typeof best==='object'&&best!==null?best:{};
