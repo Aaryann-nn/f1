@@ -101,8 +101,7 @@ async function refresh(){
   const meetingObj=firstPayload(session?.Meeting,session?.meeting,sessionObj?.Meeting);
   const sessionName=val(sessionObj,'Name','SessionName','sessionName','name')||val(session,'sessionName')||'Waiting For Session';
   const rawSessionState=String(val(leaderboard,'SessionStatus','sessionStatus')||val(sessionObj,'Status','status','SessionStatus','sessionStatus')||val(session,'Status','status','SessionStatus','sessionStatus')||'').toLowerCase();
-  const sessionFinished=['finalised','finalized','finished','complete','completed'].includes(rawSessionState);
-  if(sessionFinished){$('status-text').textContent='Session finished';$('session-title').textContent=sessionName+' · FINISHED';}
+  let sessionFinished=/finalis|finaliz|finish|complet|ended|closed/.test(rawSessionState);
   const meetingName=val(meetingObj,'Name','OfficialName','meetingName','name')||val(sessionObj,'MeetingName','meetingName')||'F1 RACE WEEKEND';
   const circuit=val(meetingObj,'CircuitName','circuitName')||val(sessionObj,'CircuitName','circuitName','Location')||'';
   const country=val(meetingObj,'CountryName','countryName')||'';
@@ -114,7 +113,21 @@ async function refresh(){
   const currentLap=val(laps,'CurrentLap','currentLap','Lap','lap');
   const totalLaps=val(laps,'TotalLaps','totalLaps');
   $('lap-count').textContent=currentLap!=null?(totalLaps!=null?currentLap+' / '+totalLaps:currentLap):'—';
-  const drivers=records(leaderboard || {});
+  const lapNow=Number(currentLap), lapTotal=Number(totalLaps);
+  if(Number.isFinite(lapNow)&&Number.isFinite(lapTotal)&&lapTotal>0&&lapNow>=lapTotal) sessionFinished=true;
+  if(sessionFinished){
+    $('status-text').textContent='Session finished';
+    $('session-title').textContent=sessionName+' · FINISHED';
+  } else {
+    $('session-title').textContent=sessionName;
+  }
+  const drivers=records(leaderboard || {}).filter(r=>{
+    const id=val(r,'RacingNumber','racingNumber','DriverNumber','driverNumber');
+    const pos=val(r,'Position','position');
+    const name=val(r,'FullName','BroadcastName','Tla','Name','name');
+    const team=val(r,'TeamName','teamName','Team','team');
+    return (id!=null || pos!=null) && (name!=null || team!=null || pos!=null);
+  });
   const tyreById={};
   const tyreLines=tyres?.Lines||tyres?.lines;
   if(tyreLines&&typeof tyreLines==='object') Object.entries(tyreLines).forEach(([id,r])=>tyreById[id]=r);
